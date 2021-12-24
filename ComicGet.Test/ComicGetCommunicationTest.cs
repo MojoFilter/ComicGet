@@ -7,40 +7,58 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ComicGet.Test
+namespace ComicGet.Test;
+
+[TestClass]
+public class ComicGetCommunicationTest
 {
-    [TestClass]
-    public class ComicGetCommunicationTest
+    [TestMethod]
+    public async Task GetWeeklyPacksGetsWeeklyPacks()
     {
-        [TestMethod]
-        public async Task GetWeeklyPacksGetsWeeklyPacks()
+        var expectedWeeklies = new WeeklyPack[]
         {
-            var expectedWeeklies = new WeeklyPack[]
-            {
                 new("2021.12.22 Weekly Pack", "https://getcomics.info/other-comics/2021-12-22-weekly-pack/"),
                 new("2021.12.15 Weekly Pack", "https://getcomics.info/other-comics/2021-12-15-weekly-pack/"),
                 new("2021.12.08 Weekly Pack", "https://getcomics.info/other-comics/2021-12-08-weekly-pack/"),
                 new("2021.12.22 Weekly Pack","https://getcomics.info/other-comics/2021-12-22-weekly-pack/")
-            };
+        };
 
-            var httpMock = new Mock<IComicGetHttpClient>();
-            httpMock.Setup(x => x.GetWeeklyPackIndexPageAsync(It.IsAny<CancellationToken>()))
-                .Returns(() => Task.Run(() =>
-               {
-                   var files = this.GetType().Assembly.GetManifestResourceNames();
-                   using var stream = this.GetType().Assembly.GetManifestResourceStream("ComicGet.Test.WeeklyPacks.html");
-                   using var reader = new StreamReader(stream!);
-                   return reader.ReadToEnd();
-               }));
+        var httpMock = new Mock<IComicGetHttpClient>();
+        httpMock.Setup(x => x.GetWeeklyPackIndexPageAsync(It.IsAny<CancellationToken>()))
+            .Returns(() => Task.Run(() =>
+           {
+               var files = this.GetType().Assembly.GetManifestResourceNames();
+               using var stream = this.GetType().Assembly.GetManifestResourceStream("ComicGet.Test.WeeklyPacks.html");
+               using var reader = new StreamReader(stream!);
+               return reader.ReadToEnd();
+           }));
 
-            var provider = new ServiceCollection()
-                .AddComicGetCommunication()
-                .AddSingleton(httpMock.Object)
-                .BuildServiceProvider();
+        var provider = new ServiceCollection()
+            .AddComicGetCommunication()
+            .AddSingleton(httpMock.Object)
+            .BuildServiceProvider();
 
-            var comicsClient = provider.GetRequiredService<IComicGetCommunication>();
-            var weeklies = await comicsClient.GetWeeklyPacksAsync().ConfigureAwait(false);
-            Assert.IsTrue(expectedWeeklies.SequenceEqual(weeklies));
-        }
+        var comicsClient = provider.GetRequiredService<IComicGetCommunication>();
+        var weeklies = await comicsClient.GetWeeklyPacksAsync().ConfigureAwait(false);
+        Assert.IsTrue(expectedWeeklies.SequenceEqual(weeklies));
+    }
+
+
+    [TestMethod]
+    public async Task GetIssuesFromWeeklyParses()
+    {
+        var expectedIssues = new Issue[]
+        {
+            new("Marvel", "Stupidheroes", "")
+        };
+
+        var provider = new ServiceCollection()
+            .AddComicGetCommunication()
+            .BuildServiceProvider();
+
+        var client = provider.GetRequiredService<IComicGetCommunication>();
+        var issues = await client.GetWeeklyPackIssuesAsync().ConfigureAwait(false);
+
+        Assert.IsTrue(expectedIssues.SequenceEqual(issues));
     }
 }

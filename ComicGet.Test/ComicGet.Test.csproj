@@ -9,10 +9,12 @@
 
   <ItemGroup>
     <None Remove="WeeklyPacks.html" />
+    <None Remove="WeekPublishers.html" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="WeeklyPacks.html" />
+    <EmbeddedResource Include="WeekPublishers.html" />
   </ItemGroup>
 
   <ItemGroup>
