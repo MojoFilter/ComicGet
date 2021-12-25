@@ -23,22 +23,7 @@ public class ComicGetCommunicationTest
                 new("2021.12.22 Weekly Pack","https://getcomics.info/other-comics/2021-12-22-weekly-pack/")
         };
 
-        var httpMock = new Mock<IComicGetHttpClient>();
-        httpMock.Setup(x => x.GetWeeklyPackIndexPageAsync(It.IsAny<CancellationToken>()))
-            .Returns(() => Task.Run(() =>
-           {
-               var files = this.GetType().Assembly.GetManifestResourceNames();
-               using var stream = this.GetType().Assembly.GetManifestResourceStream("ComicGet.Test.WeeklyPacks.html");
-               using var reader = new StreamReader(stream!);
-               return reader.ReadToEnd();
-           }));
-
-        var provider = new ServiceCollection()
-            .AddComicGetCommunication()
-            .AddSingleton(httpMock.Object)
-            .BuildServiceProvider();
-
-        var comicsClient = provider.GetRequiredService<IComicGetCommunication>();
+        var comicsClient = this.GetCommunication();
         var weeklies = await comicsClient.GetWeeklyPacksAsync().ConfigureAwait(false);
         Assert.IsTrue(expectedWeeklies.SequenceEqual(weeklies));
     }
@@ -49,16 +34,39 @@ public class ComicGetCommunicationTest
     {
         var expectedIssues = new Issue[]
         {
-            new("Marvel", "Stupidheroes", "")
+            new("DC COMICS", "Batman – Catwoman #9", "https://getcomics.info/dc/batman-catwoman-9-2021/"),
+            new("MARVEL COMICS", "Amazing Spider-Man #82", "https://getcomics.info/marvel/amazing-spider-man-82-2021/"),
+            new("IMAGE COMICS", "A Righteous Thirst for Vengeance #3", "https://getcomics.info/other-comics/a-righteous-thirst-for-vengeance-3-2021/")
         };
+
+        var client = this.GetCommunication();
+        var allIssues = await client.GetWeeklyPackIssuesAsync(default).ConfigureAwait(false);
+        var issues = allIssues.DistinctBy(x => x.Publisher);
+
+        Assert.IsTrue(expectedIssues.SequenceEqual(issues));
+    }
+
+    private IComicGetCommunication GetCommunication()
+    {
+        Task<string> html(string filename) => Task.Run(() =>
+        {
+            using var stream = this.GetType().Assembly.GetManifestResourceStream($"ComicGet.Test.{filename}.html");
+            using var reader = new StreamReader(stream!);
+            return reader.ReadToEnd();
+        });
+
+        var httpMock = new Mock<IComicGetHttpClient>();
+        httpMock.Setup(x => x.GetWeeklyPackIndexPageAsync(It.IsAny<CancellationToken>()))
+                .Returns(() => html("WeeklyPacks"));
+
+        httpMock.Setup(x => x.GetWeeklyPackDetailPageAsync(It.IsAny<WeeklyPack>(), It.IsAny<CancellationToken>()))
+                .Returns(() => html("WeekPublishers"));
 
         var provider = new ServiceCollection()
             .AddComicGetCommunication()
+            .AddSingleton(httpMock.Object)
             .BuildServiceProvider();
 
-        var client = provider.GetRequiredService<IComicGetCommunication>();
-        var issues = await client.GetWeeklyPackIssuesAsync().ConfigureAwait(false);
-
-        Assert.IsTrue(expectedIssues.SequenceEqual(issues));
+        return provider.GetRequiredService<IComicGetCommunication>();
     }
 }

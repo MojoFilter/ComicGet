@@ -12,6 +12,10 @@ internal class ComicGetHttpClient : IComicGetHttpClient
         return await _httpClient.GetStringAsync(PacksUri, ct).ConfigureAwait(false);
     }
 
+    public Task<string> GetWeeklyPackDetailPageAsync(WeeklyPack pack, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
+    }
 
     private readonly HttpClient _httpClient;
     private static readonly string PacksUri = "https://getcomics.info/";
