@@ -12,9 +12,9 @@ internal class ComicGetHttpClient : IComicGetHttpClient
         return await _httpClient.GetStringAsync(PacksUri, ct).ConfigureAwait(false);
     }
 
-    public Task<string> GetWeeklyPackDetailPageAsync(WeeklyPack pack, CancellationToken ct = default)
+    public async Task<string> GetWeeklyPackDetailPageAsync(WeeklyPack pack, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        return await _httpClient.GetStringAsync(pack.url, ct).ConfigureAwait(false);
     }
 
     private readonly HttpClient _httpClient;
