@@ -8,11 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="IssuePage.html" />
     <None Remove="WeeklyPacks.html" />
     <None Remove="WeekPublishers.html" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="IssuePage.html" />
     <EmbeddedResource Include="WeeklyPacks.html" />
     <EmbeddedResource Include="WeekPublishers.html" />
   </ItemGroup>

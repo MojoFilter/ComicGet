@@ -3,5 +3,5 @@
 public interface IMainViewModel
 {
     string Title { get; }
-    IEnumerable<Issue> Issues { get; }
+    IEnumerable<IOption<Issue>> Issues { get; }
 }

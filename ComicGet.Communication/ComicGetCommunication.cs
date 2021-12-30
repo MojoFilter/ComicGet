@@ -34,6 +34,15 @@ public class ComicGetCommunication : IComicGetCommunication
                            issueMatch.Groups["url"].Value);
     }
 
+    public async Task<IIssueDownload> GetIssueDownloadAsync(Issue issue, CancellationToken ct = default)
+    {
+        var html = await _httpClient.GetIssueDetailPageAsync(issue, ct).ConfigureAwait(false);
+        var downloadLinkPattern = @"<a [^>]*? href=""(?<href>.*?)"" [^>]*? title=""Download Now""";
+        var match = Regex.Match(html, downloadLinkPattern);
+        var downloadLink = match.Groups["href"].Value;
+        return await _httpClient.DownloadBookAsync(issue.Name, downloadLink, ct).ConfigureAwait(false);
+    }
+
     private readonly IComicGetHttpClient _httpClient;
 
 }

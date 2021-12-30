@@ -14,27 +14,30 @@
             <CollectionViewSource x:Key="issueSource"
                                   Source="{Binding Issues}">
                 <CollectionViewSource.GroupDescriptions>
-                    <PropertyGroupDescription PropertyName="Publisher" />
+                    <PropertyGroupDescription PropertyName="Value.Publisher" />
                 </CollectionViewSource.GroupDescriptions>
             </CollectionViewSource>
         </Border.Resources>
-        <ItemsControl ItemsSource="{Binding Source={StaticResource issueSource}}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="cg:Issue">
-                    <CheckBox Content="{Binding Name}" />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.GroupStyle>
-                <GroupStyle>
-                    <GroupStyle.HeaderTemplate>
-                        <DataTemplate>
-                            <TextBlock FontWeight="Bold"
+        <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Source={StaticResource issueSource}}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <CheckBox Content="{Binding Label}"
+                                  IsChecked="{Binding IsSelected}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock FontWeight="Bold"
                                        FontSize="15"
                                        Text="{Binding Name}" />
-                        </DataTemplate>
-                    </GroupStyle.HeaderTemplate>
-                </GroupStyle>
-            </ItemsControl.GroupStyle>
-        </ItemsControl>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ItemsControl.GroupStyle>
+            </ItemsControl>
+        </ScrollViewer>
     </Border>
 </Window>
